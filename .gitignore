@@ -279,12 +279,12 @@ $RECYCLE.BIN/
 *.lnk
 
 # data dir
-# data/
-# data/*
+data/
+data/*
 
-# # exp dir
-# exp/
-# exp/*
+# exp dir
+exp/
+exp/*
 
 # core files
 core.*
