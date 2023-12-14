@@ -23,6 +23,12 @@ This repository contains the code necessary for training the gCLIP model, as wel
    python -m src.train
    ```
 
+## Contributors
+Hanwool Lee
+Jonghyun Choi
+Sungbum Jung
+
+
 ## Additional Information
 - The paper, "gCLIP: A Multimodal Approach to Integrating Visual and Textual Cues in Games," is scheduled for release in January 2024.
 - This framework is aimed at enhancing the understanding and interaction within game environments.
