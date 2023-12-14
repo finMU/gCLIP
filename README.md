@@ -24,9 +24,9 @@ This repository contains the code necessary for training the gCLIP model, as wel
    ```
 
 ## Contributors
-Hanwool Lee
-Jonghyun Choi
-Sungbum Jung
+Hanwool Lee  
+Jonghyun Choi  
+Sungbum Jung  
 
 
 ## Additional Information
