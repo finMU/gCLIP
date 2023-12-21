@@ -6,7 +6,6 @@ import timm
 
 import transformers
 from transformers import AutoModel
-from transformers import DistilBertModel, DistilBertConfig
 
 
 class ImageEncoder(nn.Module):
@@ -22,7 +21,8 @@ class ImageEncoder(nn.Module):
         # img encoer init
         self.model = timm.create_model(
             model_name, num_classes=0, global_pool="avg", pretrained=use_pretrained
-        )
+        ) 
+        # TODO : 이 부분도 timm 없이, transformers만으로도 사용 가능한 것 같습니다
 
         if not self.is_trainable:
             for parameter in self.model.parameters():
@@ -46,7 +46,8 @@ class TextEncoder(nn.Module):
         if use_pretrained:
             self.model = AutoModel.from_pretrained(model_name)
         else:
-            self.model = DistilBertModel(config=DistilBertConfig())
+            raise NotImplementedError
+            # TODO : use_pretrained가 아니라면, pretraining을 하는 기능을 이 부분에 구현해야함
 
         if not self.is_trainable:
             for parameter in self.model.parameters():
