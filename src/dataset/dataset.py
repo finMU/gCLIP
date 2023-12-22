@@ -1,20 +1,9 @@
 import os
-import random
 
 import cv2
-import numpy as np
 import pandas as pd
 
-import albumentations as A
-from albumentations.pytorch import ToTensorV2
-
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
-from torch.utils.data import Dataset, DataLoader
-
-import transformers
-from transformers import AutoTokenizer, AutoModel
+from torch.utils.data import Dataset
 
 
 class CLIPDataset(Dataset):
@@ -48,14 +37,17 @@ class CLIPDataset(Dataset):
         return len(self.data)
 
     def __getitem__(self, idx):
-        fname = self.data.iloc[idx]["image"]
+        image_name = self.data.iloc[idx]["image_name"]
         caption = self.data.iloc[idx]["caption"]
+        game_name = self.data.iloc[idx]["label_game"]
+        game_genre = self.data.iloc[idx]["label_genre"]
+        image_path = self.data.iloc[idx]["image_path"]
 
         # txt prep
         item = {k: v[idx] for k, v in self.encoded_captions.items()}
 
         # img prep
-        img_path = os.path.join(self.img_dir, fname)
+        img_path = os.path.join(self.img_dir, image_path)
 
         img = cv2.imread(img_path)
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
@@ -63,5 +55,8 @@ class CLIPDataset(Dataset):
 
         item["image"] = img
         item["caption"] = caption
+        # TODO: 추 후 실험에서 labet_to_index 추가 구현 필요
+        # item["game_name"] = game_name
+        # item["game_genre"] = game_genre
 
         return item

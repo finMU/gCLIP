@@ -22,16 +22,20 @@ from ..dataset.datamodule import CLIPDataModule
 
 
 class Trainer:
-    def __init__(self, config, scaler):
+    def __init__(self, config):
         self.config = config
         self.nprocs = torch.cuda.device_count()
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
 
+        self.grad_scaler = None
+        if config.cuda.use_amp:
+            self.grad_scaler = torch.cuda.amp.GradScaler()
+
         # model
         self.model = CLIP(**config.model)
         self.model = self.model.to(self.device)
-        self.model = nn.DataParallel(self.model)
-        self.scaler = scaler
+        if config.cuda.use_multi_gpu:
+            self.model = nn.DataParallel(self.model)
 
         # datamodule(dm)
         self.dm = CLIPDataModule(**config.datamodule)
@@ -164,13 +168,13 @@ class Trainer:
             batch = {k: v.to(self.device) for k, v in batch.items() if k != "caption"}
 
             self.optimizer.zero_grad()
-            if self.config.dp.amp:
+            if self.config.cuda.use_amp:
                 with torch.cuda.amp.autocast():
                     outputs = self.model(batch)
                     loss = outputs["loss"].mean()
-                self.scaler.scale(loss).backward()
-                self.scaler.step(self.optimizer)
-                self.scaler.update()
+                self.grad_scaler.scale(loss).backward()
+                self.grad_scaler.step(self.optimizer)
+                self.grad_scaler.update()
             else:
                 outputs = self.model(batch)
                 loss = outputs["loss"].mean()

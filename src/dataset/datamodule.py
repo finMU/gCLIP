@@ -39,7 +39,10 @@ class CLIPDataModule:
 
     def setup(self):
         # load data
-        self.df = pd.read_csv(self.data_path)
+        self.df = pd.read_csv(self.data_path, encoding_errors="ignore")
+        self.df["image_path"] = self.df["image_name"].apply(
+            lambda row: f"{row.split('_')[0]}/{row}"
+        )
 
         # tokenizer & transform
         self.tokenizer = AutoTokenizer.from_pretrained(self.tokenizer_name)
@@ -51,7 +54,7 @@ class CLIPDataModule:
             self.df, test_size=self.test_size, shuffle=True
         )
         self.train_df, self.val_df = train_test_split(
-            train_df, test_size=self.val_size, shuffle=True
+            train_df, test_size=self.test_size, shuffle=True
         )
 
         # train/val/test set
@@ -62,7 +65,6 @@ class CLIPDataModule:
             self.train_transform,
             self.txt_max_length,
         )
-
         self.valset = CLIPDataset(
             self.val_df,
             self.img_dir,

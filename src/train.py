@@ -14,10 +14,8 @@ warnings.filterwarnings(action="ignore")
 def main(config) -> None:
     fix_seed(config.train.seed)
 
-    scaler = torch.cuda.amp.GradScaler() if config.dp.amp else None
-
     # trainer
-    trainer = Trainer(config=config, scaler=scaler)
+    trainer = Trainer(config=config)
     version = trainer.fit()
 
     return None
