@@ -56,30 +56,40 @@ def infonce_loss(img_embeddings, text_embeddings, temperature):
     return loss
 
 
-def infonce_ns_loss(img_embeddings, text_embeddings, category_labels, temperature):
+def infonce_ns_loss(img_embeddings, text_embeddings, category_labels, temperature, negative_scale_factor = 0.5):
     """
-    Apply category-based negative sampling for the InfoNCE loss between image and text embeddings.
+    Apply category-based negative sampling for the InfoNCE loss between image and text embeddings
+    by lowering the logits of negative samples and applying softmax.
 
     Parameters:
     - img_embeddings: Tensor of shape (batch_size, embedding_size) containing image embeddings.
     - text_embeddings: Tensor of shape (batch_size, embedding_size) containing text embeddings.
     - category_labels: Tensor of shape (batch_size,) containing the category labels for each sample.
     - temperature: A temperature scaling factor for controlling the separation of the feature space.
+    - negative_scale_factor: A factor by which to scale down the logits of negative samples.
 
     Returns:
     - The modified InfoNCE loss with category-based negative sampling.
     """
     # 이미지 임베딩과 텍스트 임베딩 사이의 dot-product 계산
     logits = torch.matmul(text_embeddings, img_embeddings.T) / temperature
-    # 대각선(자기자신)에 대한 마스크 생성
-    diagonal_mask = torch.eye(logits.size(0), device=logits.device)
+
     # category-based negative sampling 기반으로 mask 생성
     categories = category_labels.unsqueeze(1)
     positive_mask = torch.eq(categories, categories.T).float()
-    # 대각선을 0으로 설정하여 자기 자신을 제외
-    positive_mask = positive_mask * (1 - diagonal_mask)
-    # InfoNCE loss 계산
-    # 각 샘플에 대한 softmax를 적용하고, positive pair만 고려
-    loss = -torch.log_softmax(logits, dim=1) * positive_mask
-    loss = loss.sum(dim=1) / positive_mask.sum(dim=1)  # 평균 손실 계산
+    negative_mask = 1 - positive_mask
+
+    # Negative 샘플의 logit 값을 낮춥니다
+    scaled_negative_logits = logits * negative_mask * negative_scale_factor
+
+    # Positive 샘플의 logit 값을 유지합니다
+    logits = logits * positive_mask + scaled_negative_logits
+
+    # InfoNCE loss 계산을 위해 softmax 적용
+    softmax_logits = F.softmax(logits, dim=1)
+
+    # 각 샘플의 positive pair에 대한 softmax 값 사용
+    labels = torch.arange(logits.size(0), device=logits.device)
+    loss = F.nll_loss(torch.log(softmax_logits), labels)
+
     return loss.mean()
