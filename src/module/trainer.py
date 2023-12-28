@@ -165,7 +165,11 @@ class Trainer:
             desc="train_steps",
             total=len(self.train_loader),
         ):
-            batch = {k: v.to(self.device) for k, v in batch.items() if k != "caption"}
+            batch = {
+                k: v.to(self.device)
+                for k, v in batch.items()
+                if k not in ["caption", "game_name", "genre_name"]
+            }
 
             self.optimizer.zero_grad()
             if self.config.cuda.use_amp:
@@ -217,7 +221,9 @@ class Trainer:
                 total=len(self.val_loader),
             ):
                 batch = {
-                    k: v.to(self.device) for k, v in batch.items() if k != "caption"
+                    k: v.to(self.device)
+                    for k, v in batch.items()
+                    if k not in ["caption", "game_name", "genre_name"]
                 }
 
                 outputs = self.model(batch)

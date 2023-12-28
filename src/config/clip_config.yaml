@@ -22,6 +22,7 @@ model:
   dropout: 0.1
   temperature: 1.0
   loss_fn: "cross_entropy"
+  label_type: "game"
 
 train:
   seed: 42

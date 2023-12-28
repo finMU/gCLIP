@@ -40,7 +40,9 @@ class CLIPDataset(Dataset):
         image_name = self.data.iloc[idx]["image_name"]
         caption = self.data.iloc[idx]["caption"]
         game_name = self.data.iloc[idx]["label_game"]
-        game_genre = self.data.iloc[idx]["label_genre"]
+        genre_name = self.data.iloc[idx]["label_genre"]
+        game_label = self.data.iloc[idx]["game_class"]
+        genre_label = self.data.iloc[idx]["genre_class"]
         image_path = self.data.iloc[idx]["image_path"]
 
         # txt prep
@@ -54,9 +56,11 @@ class CLIPDataset(Dataset):
         img = self.transform(image=img)["image"]
 
         item["image"] = img
+        item["game_label"] = game_label
+        item["genre_label"] = genre_label
+
         item["caption"] = caption
-        # TODO: 추 후 실험에서 labet_to_index 추가 구현 필요
-        # item["game_name"] = game_name
-        # item["game_genre"] = game_genre
+        item["game_name"] = game_name
+        item["genre_name"] = genre_name
 
         return item

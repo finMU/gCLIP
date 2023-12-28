@@ -44,6 +44,22 @@ class CLIPDataModule:
             lambda row: f"{row.split('_')[0]}/{row}"
         )
 
+        # label_to_index
+        game_list = sorted(set(self.df["label_game"]))
+        self.game_to_idx = {game: idx for idx, game in enumerate(game_list)}
+        self.idx_to_game = {idx: game for game, idx in self.game_to_idx.items()}
+
+        genre_list = sorted(set(self.df["label_genre"]))
+        self.genre_to_idx = {genre: idx for idx, genre in enumerate(genre_list)}
+        self.idx_to_genre = {idx: genre for genre, idx in self.genre_to_idx.items()}
+
+        self.df["game_class"] = self.df["label_game"].apply(
+            lambda row: self.game_to_idx[row]
+        )
+        self.df["genre_class"] = self.df["label_genre"].apply(
+            lambda row: self.genre_to_idx[row]
+        )
+
         # tokenizer & transform
         self.tokenizer = AutoTokenizer.from_pretrained(self.tokenizer_name)
         self.train_transform = get_transform(img_size=self.img_size, stage="train")
