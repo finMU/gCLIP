@@ -42,7 +42,6 @@ Sungbum Jung
 - [Repo] [openai/CLIP](https://github.com/openai/CLIP)
 - [Repo] [Distributed Training in PyTorch](https://github.com/youngerous/distributed-training-comparison)
 
-## Citation
 
 ## Citation
 If you find our work useful in your research, please consider citing:
